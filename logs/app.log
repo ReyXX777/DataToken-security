@@ -1,2 +1,5 @@
-# Example log entry
-[2024-10-18 12:00:00] Token created: abc123
+2023-10-21 15:30:05 - INFO - User 'Alice' logged in successfully.
+2023-10-21 15:30:07 - INFO - User 'Alice' performed action: VIEW
+2023-10-21 15:30:08 - WARNING - User 'Alice' attempted a DELETE action.
+2023-10-21 15:30:09 - ERROR - User 'Alice' encountered an error: File not found
+2023-10-21 15:30:10 - INFO - User 'Alice' logged out.
