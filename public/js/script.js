@@ -1,56 +1,94 @@
-// Store the token and sensitive data
-let tokenVault = [];
-let auditLogs = [];
+<?php
+// src/Token.php
+namespace App;
 
-// Tokenization function
-function tokenizeData(sensitiveData) {
-    // Generate a simple token (in practice, use a more complex algorithm)
-    let token = Math.random().toString(36).substring(2, 12);
-    tokenVault.push({ sensitiveData, token });
-    
-    // Log tokenization activity
-    auditLogs.push(`Tokenized: ${sensitiveData} -> ${token}`);
+class Token {
+    private $db;
+    private $logger;
 
-    return token;
+    public function __construct(Database $db, Logger $logger) {
+        $this->db = $db;
+        $this->logger = $logger;
+    }
+
+    public function generateToken($sensitiveData) {
+        // Generate a cryptographically secure token
+        $token = bin2hex(random_bytes(16));
+        
+        // Hash the sensitive data before storage
+        $hashedData = password_hash($sensitiveData, PASSWORD_ARGON2ID);
+        
+        // Store in database
+        $stmt = $this->db->prepare(
+            "INSERT INTO tokens (token, sensitive_data, created_at) 
+             VALUES (?, ?, NOW())"
+        );
+        $stmt->execute([$token, $hashedData]);
+        
+        // Log the tokenization event
+        $this->logger->log('Token generated', 'info', [
+            'token' => $token,
+            'ip' => $_SERVER['REMOTE_ADDR']
+        ]);
+        
+        return $token;
+    }
+
+    public function getVault() {
+        $stmt = $this->db->prepare(
+            "SELECT token, created_at FROM tokens 
+             ORDER BY created_at DESC LIMIT 100"
+        );
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 
-// Show token in the UI
-document.getElementById('tokenize-btn').addEventListener('click', function() {
-    let sensitiveData = document.getElementById('sensitive-data').value;
-    if (sensitiveData) {
-        let token = tokenizeData(sensitiveData);
-        document.getElementById('token-value').innerText = token;
-        document.getElementById('sensitive-data').value = ''; // Clear input field
+// src/Logger.php
+namespace App;
+
+class Logger {
+    private $logFile;
+
+    public function __construct($logFile = null) {
+        $this->logFile = $logFile ?? __DIR__ . '/../logs/app.log';
     }
-});
 
-// Vault Lightbox logic
-document.getElementById('view-vault-btn').addEventListener('click', function() {
-    let vaultList = document.getElementById('vault-list');
-    vaultList.innerHTML = ''; // Clear existing list
-    tokenVault.forEach(item => {
-        let li = document.createElement('li');
-        li.innerText = `Sensitive Data: ${item.sensitiveData}, Token: ${item.token}`;
-        vaultList.appendChild(li);
-    });
-    document.getElementById('vault-lightbox').style.display = 'flex';
-});
+    public function log($message, $level = 'info', $context = []) {
+        $timestamp = date('Y-m-d H:i:s');
+        $contextJson = json_encode($context);
+        $logEntry = "[$timestamp] [$level] $message $contextJson\n";
+        
+        file_put_contents($this->logFile, $logEntry, FILE_APPEND);
+    }
 
-// Logs Lightbox logic
-document.getElementById('view-logs-btn').addEventListener('click', function() {
-    let logsList = document.getElementById('logs-list');
-    logsList.innerHTML = ''; // Clear existing list
-    auditLogs.forEach(log => {
-        let li = document.createElement('li');
-        li.innerText = log;
-        logsList.appendChild(li);
-    });
-    document.getElementById('logs-lightbox').style.display = 'flex';
-});
+    public function getLogs($limit = 100) {
+        $logs = [];
+        $lines = file($this->logFile);
+        $lines = array_reverse(array_slice($lines, -$limit));
+        
+        foreach ($lines as $line) {
+            $logs[] = ['message' => trim($line)];
+        }
+        
+        return $logs;
+    }
+}
 
-// Close lightboxes
-document.querySelectorAll('.close').forEach(closeBtn => {
-    closeBtn.addEventListener('click', function() {
-        this.parentElement.parentElement.style.display = 'none';
-    });
-});
+// sql/schema.sql
+CREATE TABLE tokens (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token CHAR(32) NOT NULL UNIQUE,
+    sensitive_data TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_token (token)
+) ENGINE=InnoDB;
+
+CREATE TABLE audit_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    message TEXT NOT NULL,
+    level VARCHAR(20) NOT NULL,
+    context JSON,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB;
