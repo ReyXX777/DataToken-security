@@ -3,8 +3,11 @@ require_once('Database.php');  // Include the database connection
 
 class Token {
 
+    // Encryption key (should be stored securely, e.g., in environment variables)
+    private static $encryptionKey = 'mysecretkey';  // Replace with a secure encryption key
+
     // Tokenize sensitive data and store it in the database
-    public static function tokenize($sensitiveData) {
+    public static function tokenize($sensitiveData, $expiry = null) {
         try {
             $db = Database::getConnection();  // Get database connection
 
@@ -14,9 +17,9 @@ class Token {
             // Encrypt sensitive data before storing
             $encryptedData = self::encryptData($sensitiveData);
 
-            // Insert the token and encrypted sensitive data into the database
-            $query = $db->prepare("INSERT INTO tokens (sensitive_data, token, created_at) VALUES (?, ?, NOW())");
-            $query->execute([$encryptedData, $token]);
+            // Insert the token, encrypted sensitive data, and expiry into the database
+            $query = $db->prepare("INSERT INTO tokens (sensitive_data, token, created_at, expires_at) VALUES (?, ?, NOW(), ?)");
+            $query->execute([$encryptedData, $token, $expiry]);
 
             // Return the token
             return $token;
@@ -32,11 +35,16 @@ class Token {
             $db = Database::getConnection();  // Get database connection
 
             // Query the database for the token
-            $query = $db->prepare("SELECT sensitive_data FROM tokens WHERE token = ?");
+            $query = $db->prepare("SELECT sensitive_data, expires_at FROM tokens WHERE token = ?");
             $query->execute([$token]);
 
             $result = $query->fetch();
             if ($result) {
+                // Check if the token has expired
+                if ($result['expires_at'] && strtotime($result['expires_at']) < time()) {
+                    return 'Token has expired';  // Return error message if token is expired
+                }
+
                 // Decrypt the sensitive data
                 $decryptedData = self::decryptData($result['sensitive_data']);
                 return $decryptedData;  // Return the original sensitive data
@@ -51,20 +59,18 @@ class Token {
 
     // Encrypt sensitive data before storing it
     private static function encryptData($data) {
-        $encryptionKey = 'mysecretkey';  // Replace with a secure encryption key
         $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));  // Generate a random IV
 
         // Encrypt the data using AES-256-CBC encryption
-        $encryptedData = openssl_encrypt($data, 'aes-256-cbc', $encryptionKey, 0, $iv);
+        $encryptedData = openssl_encrypt($data, 'aes-256-cbc', self::$encryptionKey, 0, $iv);
         return base64_encode($encryptedData . '::' . $iv);  // Encode encrypted data and IV as base64
     }
 
     // Decrypt the sensitive data when retrieving it
     private static function decryptData($encryptedData) {
-        $encryptionKey = 'mysecretkey';  // Use the same key used for encryption
         list($encryptedData, $iv) = explode('::', base64_decode($encryptedData), 2);  // Split data and IV
 
         // Decrypt the data using AES-256-CBC
-        return openssl_decrypt($encryptedData, 'aes-256-cbc', $encryptionKey, 0, $iv);
+        return openssl_decrypt($encryptedData, 'aes-256-cbc', self::$encryptionKey, 0, $iv);
     }
 }
