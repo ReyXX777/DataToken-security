@@ -3,12 +3,25 @@ require_once('Database.php');  // Include the database connection
 
 class Token {
 
-    // Encryption key (should be stored securely, e.g., in environment variables)
-    private static $encryptionKey = 'mysecretkey';  // Replace with a secure encryption key
+    // Encryption key (should be securely stored, e.g., in environment variables)
+    private static $encryptionKey;
+
+    // Initialize the encryption key from environment variables
+    public static function init() {
+        self::$encryptionKey = getenv('ENCRYPTION_KEY');  // Fetch from environment variables
+        if (empty(self::$encryptionKey)) {
+            throw new Exception("Encryption key is not set.");
+        }
+    }
 
     // Tokenize sensitive data and store it in the database
     public static function tokenize($sensitiveData, $expiry = null) {
         try {
+            // Validate sensitive data
+            if (empty($sensitiveData)) {
+                throw new InvalidArgumentException("Sensitive data cannot be empty.");
+            }
+
             $db = Database::getConnection();  // Get database connection
 
             // Create a unique token (16-character hexadecimal)
@@ -16,6 +29,11 @@ class Token {
 
             // Encrypt sensitive data before storing
             $encryptedData = self::encryptData($sensitiveData);
+
+            // Set default expiry to 30 days if not provided
+            if (!$expiry) {
+                $expiry = date('Y-m-d H:i:s', strtotime('+30 days'));
+            }
 
             // Insert the token, encrypted sensitive data, and expiry into the database
             $query = $db->prepare("INSERT INTO tokens (sensitive_data, token, created_at, expires_at) VALUES (?, ?, NOW(), ?)");
@@ -32,6 +50,11 @@ class Token {
     // Detokenize and retrieve the original data using the token
     public static function detokenize($token) {
         try {
+            // Validate token format
+            if (!self::isValidToken($token)) {
+                throw new InvalidArgumentException("Invalid token format.");
+            }
+
             $db = Database::getConnection();  // Get database connection
 
             // Query the database for the token
@@ -73,4 +96,12 @@ class Token {
         // Decrypt the data using AES-256-CBC
         return openssl_decrypt($encryptedData, 'aes-256-cbc', self::$encryptionKey, 0, $iv);
     }
+
+    // Validate the token format (16-character hexadecimal)
+    private static function isValidToken($token) {
+        return preg_match('/^[a-f0-9]{32}$/', $token);
+    }
 }
+
+// Initialize the encryption key
+Token::init();
