@@ -8,33 +8,42 @@
  */
 
 // Load environment variables (if using a .env file)
+require_once __DIR__ . '/../vendor/autoload.php'; // Ensure Composer's autoloader is loaded
+
 if (file_exists(__DIR__ . '/../.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
     $dotenv->load();
 }
 
 // Configuration array
-return [
+$config = [
     // Database connection settings
-    'db_host' => getenv('DB_HOST') ?: 'localhost',          // MySQL host (usually localhost)
-    'db_name' => getenv('DB_NAME') ?: 'secure_token_db',    // The name of the database
-    'db_user' => getenv('DB_USER') ?: 'your_username',      // Your MySQL username
-    'db_pass' => getenv('DB_PASSWORD') ?: 'your_password',  // Your MySQL password
+    'db_host' => getenv('DB_HOST') ?: 'localhost',          // MySQL host (default: localhost)
+    'db_name' => getenv('DB_NAME') ?: 'secure_token_db',    // Database name (default: secure_token_db)
+    'db_user' => getenv('DB_USER') ?: 'your_username',      // MySQL username (default: your_username)
+    'db_pass' => getenv('DB_PASSWORD') ?: 'your_password',  // MySQL password (default: your_password)
 
-    // Other global settings (you can add more here if needed)
+    // Other global settings
     'app_name' => getenv('APP_NAME') ?: 'Secure Token System',  // Application name
     'app_env'  => getenv('APP_ENV') ?: 'development',           // Environment: 'development' or 'production'
-    'log_file' => __DIR__ . '/../logs/app.log',                 // Path to the application log file
+    'log_file' => __DIR__ . '/../logs/app.log',                 // Path to the log file
 
-    // Encryption settings (for tokenization, etc.)
-    'encryption_key' => getenv('ENCRYPTION_KEY') ?: 'mysecretkey',  // Encryption key for sensitive data
+    // Encryption settings
+    'encryption_key' => getenv('ENCRYPTION_KEY') ?: 'mysecretkey',  // Encryption key (use a secure key)
 ];
 
 // Validate critical configuration values
 if (empty($config['db_host']) || empty($config['db_name']) || empty($config['db_user'])) {
-    throw new RuntimeException("Database configuration is incomplete. Please check your settings.");
+    throw new RuntimeException(
+        "Database configuration is incomplete. Please check your .env file or configuration settings."
+    );
 }
 
-if (empty($config['encryption_key'])) {
-    throw new RuntimeException("Encryption key is missing. Please set it in your environment variables.");
+if (empty($config['encryption_key']) || $config['encryption_key'] === 'mysecretkey') {
+    throw new RuntimeException(
+        "Encryption key is missing or insecure. Please set a secure key in your .env file."
+    );
 }
+
+// Return the configuration array
+return $config;
