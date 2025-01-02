@@ -1,5 +1,5 @@
-2023-10-21 15:30:05 - INFO - User 'Alice' logged in successfully.
-2023-10-21 15:30:07 - INFO - User 'Alice' performed action: VIEW
-2023-10-21 15:30:08 - WARNING - User 'Alice' attempted a DELETE action.
-2023-10-21 15:30:09 - ERROR - User 'Alice' encountered an error: File not found
-2023-10-21 15:30:10 - INFO - User 'Alice' logged out.
+LogEntry(timestamp=2023-10-21 15:30:05, level=INFO, user=Alice, action=logged in successfully, details=None)
+LogEntry(timestamp=2023-10-21 15:30:07, level=INFO, user=Alice, action=performed, details=VIEW)
+LogEntry(timestamp=2023-10-21 15:30:08, level=WARNING, user=Alice, action=attempted, details=DELETE)
+LogEntry(timestamp=2023-10-21 15:30:09, level=ERROR, user=Alice, action=error, details=File not found)
+LogEntry(timestamp=2023-10-21 15:30:10, level=INFO, user=Alice, action=logged out, details=None)
