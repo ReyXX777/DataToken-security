@@ -10,7 +10,7 @@ CREATE TABLE tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     token CHAR(64) NOT NULL UNIQUE,
     sensitive_data VARBINARY(2048) NOT NULL,  -- Encrypted data storage
-    hash_verification CHAR(64) NOT NULL,       -- Hash for data verification
+    hash_verification CHAR(64) NOT NULL,     -- Hash for data verification
     status ENUM('active', 'revoked', 'expired') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NULL DEFAULT NULL,
