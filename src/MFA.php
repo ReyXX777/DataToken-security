@@ -115,4 +115,28 @@ class MFA {
 
         return hash_equals($otpAfter, $userOTP);
     }
+
+    // New component: Backup code generation
+    public static function generateBackupCodes(int $count = 10): array {
+        $backupCodes = [];
+        for ($i = 0; $i < $count; $i++) {
+            $backupCodes[] = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        }
+        return $backupCodes;
+    }
+
+    // New component: Backup code verification
+    public static function verifyBackupCode(array $backupCodes, string $userCode): bool {
+        if (!self::isValidOTP($userCode)) {
+            throw new InvalidArgumentException("Invalid backup code format.");
+        }
+
+        $index = array_search($userCode, $backupCodes);
+        if ($index !== false) {
+            unset($backupCodes[$index]); // Remove the used backup code
+            return true;
+        }
+
+        return false;
+    }
 }
