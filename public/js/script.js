@@ -42,6 +42,21 @@ class Token {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    // New component: Token validation
+    public function validateToken($token, $sensitiveData) {
+        $stmt = $this->db->prepare(
+            "SELECT sensitive_data FROM tokens 
+             WHERE token = ?"
+        );
+        $stmt->execute([$token]);
+        $result = $stmt->fetch();
+
+        if ($result && password_verify($sensitiveData, $result['sensitive_data'])) {
+            return true;
+        }
+        return false;
+    }
 }
 
 // src/Logger.php
@@ -71,6 +86,21 @@ class Logger {
             $logs[] = ['message' => trim($line)];
         }
         
+        return $logs;
+    }
+
+    // New component: Log level filtering
+    public function getLogsByLevel($level, $limit = 100) {
+        $logs = [];
+        $lines = file($this->logFile);
+        $lines = array_reverse(array_slice($lines, -$limit));
+
+        foreach ($lines as $line) {
+            if (strpos($line, "[$level]") !== false) {
+                $logs[] = ['message' => trim($line)];
+            }
+        }
+
         return $logs;
     }
 }
