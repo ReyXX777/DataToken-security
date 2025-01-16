@@ -11,6 +11,8 @@ The **Secure Token Project** is a secure tokenization system built using the **L
 - **AES Encryption**: Sensitive data is encrypted before being stored in the database.
 - **MFA (Multi-Factor Authentication)**: Secure user accounts with time-based one-time passwords (TOTP).
 - **Database**: MySQL is used to store tokens and sensitive data.
+- **Logging**: Comprehensive logging for all tokenization and detokenization activities.
+- **Rate Limiting**: Prevent abuse with rate limiting for API endpoints.
 
 ## Requirements
 
