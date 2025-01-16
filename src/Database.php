@@ -176,4 +176,30 @@ class Database {
     public function __wakeup(): void {
         throw new Exception("Cannot unserialize database connection");
     }
+
+    // New component: Connection Pooling
+    public static function getConnectionPoolSize(): int {
+        return count(self::$instances);
+    }
+
+    public static function clearConnectionPool(): void {
+        self::$instances = [];
+    }
+
+    // New component: Query Logger
+    public static function logQuery(string $query, array $params = [], string $name = 'default'): void {
+        if (isset(self::$connectionParams[$name]['query_log'])) {
+            $logEntry = [
+                'timestamp' => date('Y-m-d H:i:s'),
+                'query' => $query,
+                'params' => $params,
+                'connection' => $name,
+            ];
+            file_put_contents(
+                self::$connectionParams[$name]['query_log'],
+                json_encode($logEntry) . PHP_EOL,
+                FILE_APPEND
+            );
+        }
+    }
 }
