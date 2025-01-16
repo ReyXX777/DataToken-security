@@ -174,6 +174,44 @@ try {
                 </div>
             </form>
         </section>
+
+        <!-- New component: Token Vault -->
+        <section id="token-vault" class="card">
+            <h2>Token Vault</h2>
+            <div class="vault-content">
+                <?php
+                $tokens = $token->getVault();
+                if (!empty($tokens)) {
+                    echo '<ul>';
+                    foreach ($tokens as $tokenEntry) {
+                        echo '<li>' . htmlspecialchars($tokenEntry['token']) . ' - ' . htmlspecialchars($tokenEntry['created_at']) . '</li>';
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p>No tokens found.</p>';
+                }
+                ?>
+            </div>
+        </section>
+
+        <!-- New component: Activity Log -->
+        <section id="activity-log" class="card">
+            <h2>Activity Log</h2>
+            <div class="log-content">
+                <?php
+                $logs = $logger->getLogs(10);
+                if (!empty($logs)) {
+                    echo '<ul>';
+                    foreach ($logs as $log) {
+                        echo '<li>' . htmlspecialchars($log['message']) . '</li>';
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p>No activity logs found.</p>';
+                }
+                ?>
+            </div>
+        </section>
     </main>
 
     <footer>
