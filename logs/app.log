@@ -1,5 +1,42 @@
-LogEntry(timestamp=2023-10-21 15:30:05, level=INFO, user=Alice, action=logged in successfully, details=None)
-LogEntry(timestamp=2023-10-21 15:30:07, level=INFO, user=Alice, action=performed, details=VIEW)
-LogEntry(timestamp=2023-10-21 15:30:08, level=WARNING, user=Alice, action=attempted, details=DELETE)
-LogEntry(timestamp=2023-10-21 15:30:09, level=ERROR, user=Alice, action=error, details=File not found)
-LogEntry(timestamp=2023-10-21 15:30:10, level=INFO, user=Alice, action=logged out, details=None)
+from datetime import datetime
+from typing import Optional
+
+class LogEntry:
+    def __init__(self, timestamp: str, level: str, user: str, action: str, details: Optional[str] = None):
+        self.timestamp = timestamp
+        self.level = level
+        self.user = user
+        self.action = action
+        self.details = details
+
+    def __repr__(self):
+        return f"LogEntry(timestamp={self.timestamp}, level={self.level}, user={self.user}, action={self.action}, details={self.details})"
+
+# Additional components: LogManager and LogFilter
+class LogManager:
+    def __init__(self):
+        self.logs = []
+
+    def add_log(self, log_entry: LogEntry):
+        self.logs.append(log_entry)
+
+    def filter_logs_by_level(self, level: str):
+        return [log for log in self.logs if log.level == level]
+
+    def filter_logs_by_user(self, user: str):
+        return [log for log in self.logs if log.user == user]
+
+# Example usage
+log_manager = LogManager()
+log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:05", level="INFO", user="Alice", action="logged in successfully"))
+log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:07", level="INFO", user="Alice", action="performed", details="VIEW"))
+log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:08", level="WARNING", user="Alice", action="attempted", details="DELETE"))
+log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:09", level="ERROR", user="Alice", action="error", details="File not found"))
+log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:10", level="INFO", user="Alice", action="logged out"))
+
+# Filter logs by level and user
+info_logs = log_manager.filter_logs_by_level("INFO")
+alice_logs = log_manager.filter_logs_by_user("Alice")
+
+print("INFO Logs:", info_logs)
+print("Alice Logs:", alice_logs)
