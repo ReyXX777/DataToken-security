@@ -82,6 +82,36 @@ class Logger {
             self::ensureLogFileExists(); // Recreate a new empty log file
         }
     }
+
+    // New component: Log filtering by level
+    public static function getLogsByLevel(string $level, int $limit = 100): array {
+        $logs = [];
+        $lines = file(self::$logFile);
+        $lines = array_reverse(array_slice($lines, -$limit));
+
+        foreach ($lines as $line) {
+            if (strpos($line, "[$level]") !== false) {
+                $logs[] = ['message' => trim($line)];
+            }
+        }
+
+        return $logs;
+    }
+
+    // New component: Log search functionality
+    public static function searchLogs(string $query, int $limit = 100): array {
+        $logs = [];
+        $lines = file(self::$logFile);
+        $lines = array_reverse(array_slice($lines, -$limit));
+
+        foreach ($lines as $line) {
+            if (strpos($line, $query) !== false) {
+                $logs[] = ['message' => trim($line)];
+            }
+        }
+
+        return $logs;
+    }
 }
 
 // Initialize the logger with a custom log file location if necessary
@@ -92,3 +122,7 @@ Logger::info('This is an informational message');
 Logger::error('This is an error message');
 Logger::warning('This is a warning message');
 Logger::debug('This is a debug message');
+
+// Example of using the new components
+$infoLogs = Logger::getLogsByLevel(Logger::LEVEL_INFO);
+$searchResults = Logger::searchLogs('error');
