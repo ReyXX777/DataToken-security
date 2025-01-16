@@ -30,6 +30,10 @@ $config = [
 
     // Encryption settings
     'encryption_key' => getenv('ENCRYPTION_KEY') ?: 'mysecretkey',  // Encryption key (use a secure key)
+
+    // New components added
+    'token_expiry' => getenv('TOKEN_EXPIRY') ?: 3600,              // Token expiry time in seconds (default: 1 hour)
+    'max_login_attempts' => getenv('MAX_LOGIN_ATTEMPTS') ?: 5,     // Maximum login attempts before lockout (default: 5)
 ];
 
 // Validate critical configuration values
