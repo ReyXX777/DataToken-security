@@ -160,3 +160,29 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- New component: Token Metadata Table
+CREATE TABLE token_metadata (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    metadata_key VARCHAR(255) NOT NULL,
+    metadata_value TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_token_id (token_id),
+    INDEX idx_metadata_key (metadata_key),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- New component: Token Access Logs Table
+CREATE TABLE token_access_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    accessed_by VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    user_agent TEXT,
+    accessed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_token_id (token_id),
+    INDEX idx_accessed_at (accessed_at),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
