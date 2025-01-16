@@ -269,3 +269,51 @@ button.secondary:hover {
         padding: 1.5rem;
     }
 }
+
+/* New Components */
+/* Card component */
+.card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.card-body {
+    font-size: 1rem;
+    color: #4a5568;
+}
+
+/* Alert component */
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.alert-success {
+    background-color: #c6f6d5;
+    border: 1px solid #48bb78;
+    color: #2f855a;
+}
+
+.alert-warning {
+    background-color: #fefcbf;
+    border: 1px solid #ecc94b;
+    color: #b7791f;
+}
+
+.alert-error {
+    background-color: #fed7d7;
+    border: 1px solid #f56565;
+    color: #c53030;
+}
