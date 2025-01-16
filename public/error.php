@@ -129,4 +129,33 @@ class Logger {
             mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
         );
     }
+
+    // New component: Log rotation
+    public function rotateLogs(int $maxSize = 1048576, int $maxFiles = 5): void {
+        if (file_exists($this->logFile) && filesize($this->logFile) >= $maxSize) {
+            for ($i = $maxFiles - 1; $i >= 1; $i--) {
+                $oldLog = $this->logDir . '/app.log.' . $i;
+                $newLog = $this->logDir . '/app.log.' . ($i + 1);
+                if (file_exists($oldLog)) {
+                    rename($oldLog, $newLog);
+                }
+            }
+            rename($this->logFile, $this->logDir . '/app.log.1');
+        }
+    }
+
+    // New component: Log search
+    public function searchLogs(string $query, int $limit = 100): array {
+        $logs = [];
+        $lines = file($this->logFile);
+        $lines = array_reverse(array_slice($lines, -$limit));
+
+        foreach ($lines as $line) {
+            if (strpos($line, $query) !== false) {
+                $logs[] = ['message' => trim($line)];
+            }
+        }
+
+        return $logs;
+    }
 }
