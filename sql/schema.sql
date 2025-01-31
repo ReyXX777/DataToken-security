@@ -186,3 +186,28 @@ CREATE TABLE token_access_logs (
     INDEX idx_accessed_at (accessed_at),
     FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- New component: Token Expiry Notifications Table
+CREATE TABLE token_expiry_notifications (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    notified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notification_type ENUM('email', 'sms', 'internal') NOT NULL,
+    recipient VARCHAR(255) NOT NULL,
+    status ENUM('sent', 'failed', 'pending') NOT NULL DEFAULT 'pending',
+    INDEX idx_token_id (token_id),
+    INDEX idx_notified_at (notified_at),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- New component: Token Usage Analytics Table
+CREATE TABLE token_usage_analytics (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    usage_date DATE NOT NULL,
+    access_count INT UNSIGNED NOT NULL DEFAULT 0,
+    unique_users INT UNSIGNED NOT NULL DEFAULT 0,
+    INDEX idx_token_id (token_id),
+    INDEX idx_usage_date (usage_date),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
