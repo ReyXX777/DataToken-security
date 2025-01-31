@@ -34,6 +34,8 @@ $config = [
     // New components added
     'token_expiry' => getenv('TOKEN_EXPIRY') ?: 3600,              // Token expiry time in seconds (default: 1 hour)
     'max_login_attempts' => getenv('MAX_LOGIN_ATTEMPTS') ?: 5,     // Maximum login attempts before lockout (default: 5)
+    'session_timeout' => getenv('SESSION_TIMEOUT') ?: 1800,        // Session timeout in seconds (default: 30 minutes)
+    'api_rate_limit' => getenv('API_RATE_LIMIT') ?: 100,           // API rate limit per minute (default: 100 requests)
 ];
 
 // Validate critical configuration values
