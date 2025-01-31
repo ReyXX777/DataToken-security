@@ -26,6 +26,12 @@ class LogManager:
     def filter_logs_by_user(self, user: str):
         return [log for log in self.logs if log.user == user]
 
+    def filter_logs_by_action(self, action: str):
+        return [log for log in self.logs if log.action == action]
+
+    def get_latest_logs(self, count: int):
+        return self.logs[-count:]
+
 # Example usage
 log_manager = LogManager()
 log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:05", level="INFO", user="Alice", action="logged in successfully"))
@@ -34,9 +40,15 @@ log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:08", level="WARNING", u
 log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:09", level="ERROR", user="Alice", action="error", details="File not found"))
 log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:10", level="INFO", user="Alice", action="logged out"))
 
-# Filter logs by level and user
+# Filter logs by level, user, and action
 info_logs = log_manager.filter_logs_by_level("INFO")
 alice_logs = log_manager.filter_logs_by_user("Alice")
+action_logs = log_manager.filter_logs_by_action("logged in successfully")
+
+# Get latest logs
+latest_logs = log_manager.get_latest_logs(3)
 
 print("INFO Logs:", info_logs)
 print("Alice Logs:", alice_logs)
+print("Action Logs:", action_logs)
+print("Latest Logs:", latest_logs)
