@@ -57,6 +57,26 @@ class Token {
         }
         return false;
     }
+
+    // New component: Token expiration check
+    public function isTokenExpired($token) {
+        $stmt = $this->db->prepare(
+            "SELECT created_at FROM tokens 
+             WHERE token = ?"
+        );
+        $stmt->execute([$token]);
+        $result = $stmt->fetch();
+
+        if ($result) {
+            $createdAt = new \DateTime($result['created_at']);
+            $now = new \DateTime();
+            $interval = $now->diff($createdAt);
+
+            // Token expires after 1 hour
+            return ($interval->h >= 1);
+        }
+        return true;
+    }
 }
 
 // src/Logger.php
@@ -97,6 +117,21 @@ class Logger {
 
         foreach ($lines as $line) {
             if (strpos($line, "[$level]") !== false) {
+                $logs[] = ['message' => trim($line)];
+            }
+        }
+
+        return $logs;
+    }
+
+    // New component: Log search by keyword
+    public function searchLogs($keyword, $limit = 100) {
+        $logs = [];
+        $lines = file($this->logFile);
+        $lines = array_reverse(array_slice($lines, -$limit));
+
+        foreach ($lines as $line) {
+            if (strpos($line, $keyword) !== false) {
                 $logs[] = ['message' => trim($line)];
             }
         }
