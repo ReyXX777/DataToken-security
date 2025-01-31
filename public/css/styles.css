@@ -317,3 +317,67 @@ button.secondary:hover {
     border: 1px solid #f56565;
     color: #c53030;
 }
+
+/* New Components */
+/* Tooltip component */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: #2d3748;
+    color: #fff;
+    text-align: center;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tooltip .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #2d3748 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Badge component */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    background-color: #4299e1;
+    color: white;
+}
+
+.badge-success {
+    background-color: #48bb78;
+}
+
+.badge-warning {
+    background-color: #ecc94b;
+}
+
+.badge-error {
+    background-color: #f56565;
+}
