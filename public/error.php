@@ -158,4 +158,28 @@ class Logger {
 
         return $logs;
     }
+
+    // New component: Log level statistics
+    public function getLogLevelStatistics(): array {
+        $stats = array_fill_keys($this->allowedLevels, 0);
+        $lines = file($this->logFile);
+
+        foreach ($lines as $line) {
+            foreach ($this->allowedLevels as $level) {
+                if (strpos($line, "[$level]") !== false) {
+                    $stats[$level]++;
+                    break;
+                }
+            }
+        }
+
+        return $stats;
+    }
+
+    // New component: Clear logs
+    public function clearLogs(): void {
+        if (file_exists($this->logFile)) {
+            file_put_contents($this->logFile, '');
+        }
+    }
 }
