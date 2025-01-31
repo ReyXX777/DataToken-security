@@ -202,4 +202,31 @@ class Database {
             );
         }
     }
+
+    // New component: Connection Health Check
+    public static function checkConnectionHealth(string $name = 'default'): bool {
+        try {
+            $connection = self::getConnection($name);
+            $connection->query('SELECT 1');
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // New component: Connection Statistics
+    public static function getConnectionStatistics(string $name = 'default'): array {
+        if (!self::isConnected($name)) {
+            return [];
+        }
+
+        $connection = self::getConnection($name);
+        return [
+            'connection_name' => $name,
+            'status' => $connection->getAttribute(PDO::ATTR_CONNECTION_STATUS),
+            'server_version' => $connection->getAttribute(PDO::ATTR_SERVER_VERSION),
+            'client_version' => $connection->getAttribute(PDO::ATTR_CLIENT_VERSION),
+            'time_connected' => time() - $connection->getAttribute(PDO::ATTR_TIMEOUT),
+        ];
+    }
 }
