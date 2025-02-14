@@ -12,7 +12,6 @@ class LogEntry:
     def __repr__(self):
         return f"LogEntry(timestamp={self.timestamp}, level={self.level}, user={self.user}, action={self.action}, details={self.details})"
 
-# Additional components: LogManager and LogFilter
 class LogManager:
     def __init__(self):
         self.logs = []
@@ -32,6 +31,23 @@ class LogManager:
     def get_latest_logs(self, count: int):
         return self.logs[-count:]
 
+    def filter_logs_by_time_range(self, start_time: str, end_time: str):
+        return [log for log in self.logs if start_time <= log.timestamp <= end_time]
+
+    def export_logs_to_file(self, filename: str):
+        with open(filename, 'w') as file:
+            for log in self.logs:
+                file.write(f"{log}\n")
+
+    def clear_logs(self):
+        self.logs.clear()
+
+    def count_logs_by_level(self, level: str):
+        return len([log for log in self.logs if log.level == level])
+
+    def get_unique_users(self):
+        return list(set(log.user for log in self.logs))
+
 # Example usage
 log_manager = LogManager()
 log_manager.add_log(LogEntry(timestamp="2023-10-21 15:30:05", level="INFO", user="Alice", action="logged in successfully"))
@@ -48,7 +64,16 @@ action_logs = log_manager.filter_logs_by_action("logged in successfully")
 # Get latest logs
 latest_logs = log_manager.get_latest_logs(3)
 
+# New components usage
+time_range_logs = log_manager.filter_logs_by_time_range("2023-10-21 15:30:05", "2023-10-21 15:30:09")
+log_manager.export_logs_to_file("logs.txt")
+log_count = log_manager.count_logs_by_level("INFO")
+unique_users = log_manager.get_unique_users()
+
 print("INFO Logs:", info_logs)
 print("Alice Logs:", alice_logs)
 print("Action Logs:", action_logs)
 print("Latest Logs:", latest_logs)
+print("Time Range Logs:", time_range_logs)
+print("INFO Log Count:", log_count)
+print("Unique Users:", unique_users)
