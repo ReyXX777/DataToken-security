@@ -211,3 +211,56 @@ CREATE TABLE token_usage_analytics (
     INDEX idx_usage_date (usage_date),
     FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- New component: Token Revocation Reasons Table
+CREATE TABLE token_revocation_reasons (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    reason ENUM('compromised', 'expired', 'user_request', 'system_policy') NOT NULL,
+    revoked_by VARCHAR(255) NOT NULL,
+    revoked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    INDEX idx_token_id (token_id),
+    INDEX idx_reason (reason),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- New component: Token Access Policies Table
+CREATE TABLE token_access_policies (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    policy_type ENUM('ip_whitelist', 'time_restriction', 'user_restriction') NOT NULL,
+    policy_value TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_token_id (token_id),
+    INDEX idx_policy_type (policy_type),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- New component: Token Versioning Table
+CREATE TABLE token_versions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    version INT UNSIGNED NOT NULL,
+    sensitive_data VARBINARY(2048) NOT NULL,
+    hash_verification CHAR(64) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL,
+    INDEX idx_token_id (token_id),
+    INDEX idx_version (version),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- New component: Token Audit Trail Table
+CREATE TABLE token_audit_trail (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token_id BIGINT UNSIGNED NOT NULL,
+    action ENUM('create', 'update', 'delete', 'access', 'revoke') NOT NULL,
+    performed_by VARCHAR(255) NOT NULL,
+    performed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    details JSON,
+    INDEX idx_token_id (token_id),
+    INDEX idx_action (action),
+    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
