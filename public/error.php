@@ -182,4 +182,53 @@ class Logger {
             file_put_contents($this->logFile, '');
         }
     }
+
+    // New component: Log archiving
+    public function archiveLogs(int $days = 30): void {
+        $files = glob($this->logDir . '/app.log.*');
+        $now = time();
+
+        foreach ($files as $file) {
+            if (is_file($file) && ($now - filemtime($file)) >= $days * 86400) {
+                unlink($file);
+            }
+        }
+    }
+
+    // New component: Log compression
+    public function compressLogs(): void {
+        $files = glob($this->logDir . '/app.log.*');
+        foreach ($files as $file) {
+            if (!file_exists($file . '.gz')) {
+                $gzFile = gzopen($file . '.gz', 'w9');
+                gzwrite($gzFile, file_get_contents($file));
+                gzclose($gzFile);
+                unlink($file);
+            }
+        }
+    }
+
+    // New component: Log export
+    public function exportLogs(string $filename): void {
+        if (file_exists($this->logFile)) {
+            copy($this->logFile, $filename);
+        }
+    }
+
+    // New component: Log filtering by date range
+    public function filterLogsByDateRange(string $startDate, string $endDate): array {
+        $logs = [];
+        $lines = file($this->logFile);
+
+        foreach ($lines as $line) {
+            if (preg_match('/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $line, $matches)) {
+                $logDate = $matches[1];
+                if ($logDate >= $startDate && $logDate <= $endDate) {
+                    $logs[] = ['message' => trim($line)];
+                }
+            }
+        }
+
+        return $logs;
+    }
 }
