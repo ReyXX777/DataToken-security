@@ -77,6 +77,33 @@ class Token {
         }
         return true;
     }
+
+    // New component: Token deletion
+    public function deleteToken($token) {
+        $stmt = $this->db->prepare(
+            "DELETE FROM tokens WHERE token = ?"
+        );
+        $stmt->execute([$token]);
+        return $stmt->rowCount() > 0;
+    }
+
+    // New component: Token usage tracking
+    public function trackTokenUsage($token) {
+        $stmt = $this->db->prepare(
+            "UPDATE tokens SET usage_count = usage_count + 1 
+             WHERE token = ?"
+        );
+        $stmt->execute([$token]);
+    }
+
+    // New component: Bulk token generation
+    public function generateBulkTokens($sensitiveDataArray) {
+        $tokens = [];
+        foreach ($sensitiveDataArray as $data) {
+            $tokens[] = $this->generateToken($data);
+        }
+        return $tokens;
+    }
 }
 
 // src/Logger.php
@@ -138,6 +165,27 @@ class Logger {
 
         return $logs;
     }
+
+    // New component: Log rotation
+    public function rotateLogs($maxSize = 1048576) {
+        if (filesize($this->logFile) >= $maxSize) {
+            $backupFile = $this->logFile . '.' . date('Y-m-d_H-i-s');
+            rename($this->logFile, $backupFile);
+            file_put_contents($this->logFile, '');
+        }
+    }
+
+    // New component: Log archiving
+    public function archiveLogs($days = 30) {
+        $files = glob($this->logFile . '.*');
+        $now = time();
+
+        foreach ($files as $file) {
+            if (is_file($file) && ($now - filemtime($file)) >= $days * 86400) {
+                unlink($file);
+            }
+        }
+    }
 }
 
 // sql/schema.sql
@@ -146,6 +194,7 @@ CREATE TABLE tokens (
     token CHAR(32) NOT NULL UNIQUE,
     sensitive_data TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    usage_count INT DEFAULT 0,
     INDEX idx_token (token)
 ) ENGINE=InnoDB;
 
