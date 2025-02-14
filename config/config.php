@@ -36,6 +36,11 @@ $config = [
     'max_login_attempts' => getenv('MAX_LOGIN_ATTEMPTS') ?: 5,     // Maximum login attempts before lockout (default: 5)
     'session_timeout' => getenv('SESSION_TIMEOUT') ?: 1800,        // Session timeout in seconds (default: 30 minutes)
     'api_rate_limit' => getenv('API_RATE_LIMIT') ?: 100,           // API rate limit per minute (default: 100 requests)
+    'enable_two_factor_auth' => getenv('ENABLE_TWO_FACTOR_AUTH') ?: true, // Enable two-factor authentication (default: true)
+    'password_reset_timeout' => getenv('PASSWORD_RESET_TIMEOUT') ?: 600,  // Password reset timeout in seconds (default: 10 minutes)
+    'enable_csrf_protection' => getenv('ENABLE_CSRF_PROTECTION') ?: true, // Enable CSRF protection (default: true)
+    'default_timezone' => getenv('DEFAULT_TIMEZONE') ?: 'UTC',            // Default timezone (default: UTC)
+    'enable_maintenance_mode' => getenv('ENABLE_MAINTENANCE_MODE') ?: false, // Enable maintenance mode (default: false)
 ];
 
 // Validate critical configuration values
