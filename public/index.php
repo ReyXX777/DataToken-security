@@ -212,6 +212,82 @@ try {
                 ?>
             </div>
         </section>
+
+        <!-- New component: Token Statistics -->
+        <section id="token-statistics" class="card">
+            <h2>Token Statistics</h2>
+            <div class="statistics-content">
+                <?php
+                $stats = $token->getTokenStatistics();
+                if (!empty($stats)) {
+                    echo '<ul>';
+                    echo '<li>Total Tokens: ' . htmlspecialchars($stats['total_tokens']) . '</li>';
+                    echo '<li>Active Tokens: ' . htmlspecialchars($stats['active_tokens']) . '</li>';
+                    echo '<li>Expired Tokens: ' . htmlspecialchars($stats['expired_tokens']) . '</li>';
+                    echo '</ul>';
+                } else {
+                    echo '<p>No statistics available.</p>';
+                }
+                ?>
+            </div>
+        </section>
+
+        <!-- New component: User Activity Dashboard -->
+        <section id="user-activity-dashboard" class="card">
+            <h2>User Activity Dashboard</h2>
+            <div class="dashboard-content">
+                <?php
+                $userActivities = $logger->getUserActivities(10);
+                if (!empty($userActivities)) {
+                    echo '<ul>';
+                    foreach ($userActivities as $activity) {
+                        echo '<li>' . htmlspecialchars($activity['username']) . ' - ' . htmlspecialchars($activity['action']) . ' - ' . htmlspecialchars($activity['timestamp']) . '</li>';
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p>No user activities found.</p>';
+                }
+                ?>
+            </div>
+        </section>
+
+        <!-- New component: Token Expiry Notifications -->
+        <section id="token-expiry-notifications" class="card">
+            <h2>Token Expiry Notifications</h2>
+            <div class="notifications-content">
+                <?php
+                $expiringTokens = $token->getExpiringTokens();
+                if (!empty($expiringTokens)) {
+                    echo '<ul>';
+                    foreach ($expiringTokens as $token) {
+                        echo '<li>' . htmlspecialchars($token['token']) . ' - Expires on: ' . htmlspecialchars($token['expiry_date']) . '</li>';
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p>No tokens expiring soon.</p>';
+                }
+                ?>
+            </div>
+        </section>
+
+        <!-- New component: Token Usage Analytics -->
+        <section id="token-usage-analytics" class="card">
+            <h2>Token Usage Analytics</h2>
+            <div class="analytics-content">
+                <?php
+                $usageAnalytics = $token->getTokenUsageAnalytics();
+                if (!empty($usageAnalytics)) {
+                    echo '<ul>';
+                    foreach ($usageAnalytics as $analytic) {
+                        echo '<li>' . htmlspecialchars($analytic['token']) . ' - Used: ' . htmlspecialchars($analytic['usage_count']) . ' times</li>';
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p>No usage analytics available.</p>';
+                }
+                ?>
+            </div>
+        </section>
     </main>
 
     <footer>
